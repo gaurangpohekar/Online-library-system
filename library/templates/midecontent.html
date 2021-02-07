@@ -1,0 +1,22 @@
+{% extends 'index.html' %}
+{% block midcontent %}
+    <div class="row align-items-center justify-content-center">
+        <div class="col-lg-6 text-center">
+            <div class="navbar-brand mr-lg-5" >
+                <i class="nav-link-icon ni ni-books" style = "font-size: xx-large; margin-right: 10px; color: white"></i>
+                <span class="nav-link-inner--text h1" style = "color : white">Onlib</span>
+            </div>
+            <p class="lead text-white">An online library for free and open source books. Register now to get started</p>
+            <div class = "btn-wrapper mt-5">
+                <a href="{% url 'signup' %}" class="btn btn-lg btn-white btn-icon mb-3 mb-sm-0">
+                    <span class="btn-inner--icon"><i class="ni ni-badge"></i></span>
+                    <span class="btn-inner--text">Sign Up</span>
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-lg btn-white btn-icon mb-3 mb-sm-0">
+                    <span class="btn-inner--icon"><i class="ni ni-single-02"></i></span>
+                    <span class="btn-inner--text">Sign In</span>
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

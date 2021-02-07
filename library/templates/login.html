@@ -1,0 +1,38 @@
+{% extends 'LoginTemplate.html' %}
+{% load static %}
+{% block main %}
+    <div class="col-lg-5">
+          <div class="card bg-secondary shadow border-0" style="background-image: url({% static 'img/Wave-10s-1280px.svg' %}); background-repeat: no-repeat; background-size: auto 200px; background-position: top; ">
+              <div class ="card-body px-lg-5 py-lg-5">
+                  <div class="text-center h3">
+                      Welcome
+                  </div>
+                  <div style = "margin-bottom: 20px">
+                    <img class = 'img-center' src="{% static 'img/book.png' %}"/>
+                  </div>
+                <form role="form" method="post">
+                    {% csrf_token %}
+                    <div class="form-group mb-3">
+                        <div class="input-group input-group-alternative">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="ni ni-email-83"></i></span>
+                            </div>
+                            <input class="form-control" {% if form.email.value != None %}value="{{ form.email.value|stringformat:'s' }}"{% endif %} placeholder="Email" type="email" name = 'email'>
+                        </div>
+                    </div>
+                    <div class="form-group focused">
+                        <div class="input-group input-group-alternative">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
+                            </div>
+                            <input class="form-control" {% if form.name.value != None %}value="{{ form.name.value|stringformat:'s' }}"{% endif %} placeholder="Password" type="password" name = 'password'>
+                        </div>
+                    </div>
+                <div class="text-center">
+                  <button type="submit" class="btn btn-primary my-4">Sign in</button>
+                </div>
+              </form>
+              </div>
+          </div>
+    </div>
+{% endblock %}

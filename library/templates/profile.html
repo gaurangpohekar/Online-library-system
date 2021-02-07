@@ -1,0 +1,181 @@
+{% extends 'mainTemplate.html' %}
+
+{% block mainblock %}
+    <div class = 'section'>
+        <div class = "row justify-content-center">
+            <div class = "col-md-6 card mt-5 mr-2 px-1 py-3 justify-content-center bg-gradient-white">
+                <h2 class = "text-center mb-5">User Details</h2>
+                <div class ='row justify-content-center'>
+                    <div class ="col-md-3">
+                        <p class ='font-weight-bold'>Name </p>
+                    </div>
+                    <div class ='col-md-6'>
+                        <p class = 'font-weight-bold'>{{ user.fname }} {{ user.lname }}</p>
+                    </div>
+                </div>
+                <div class ='row justify-content-center'>
+                    <div class ="col-md-3">
+                        <p class ='font-weight-bold'>Email </p>
+                    </div>
+                    <div class ='col-md-6'>
+                        <p class = 'font-weight-bold'>{{ user.email }}</p>
+                    </div>
+                </div>
+                <div class ='row justify-content-center'>
+                    <div class ="col-md-3">
+                        <p class ='font-weight-bold'>Address </p>
+                    </div>
+                    <div class ='col-md-6'>
+                        <p class = 'font-weight-bold'>{{ user.address }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class = "col-md-4 card mt-5 py-3 px-6">
+                <h2 class="text-center mb-5">Membership</h2>
+                <div class ='row justify-content-center'>
+                    <div class ="col-md-5">
+                        <p class ='font-weight-bold'>Type </p>
+                    </div>
+                    <div class ='col-md-6'>
+                        <p class = 'font-weight-bold'>{{ mem.type }}</p>
+                    </div>
+                </div>
+                <div class ='row justify-content-center'>
+                    <div class ="col-md-5">
+                        <p class ='font-weight-bold'>Date </p>
+                    </div>
+                    <div class ='col-md-6'>
+                        <p class = 'font-weight-bold'>{{ mem.date }}</p>
+                    </div>
+                </div>
+                <div class ='row justify-content-center'>
+                    <div class ="col-md-5">
+                        <p class ='font-weight-bold'>Validity </p>
+                    </div>
+                    <div class ='col-md-6'>
+                        <p class = 'font-weight-bold'>{{ mem.validity }} Months</p>
+                    </div>
+                </div>
+                <div class ='row justify-content-center'>
+                    <div class ="col-md-5">
+                        <p class ='font-weight-bold'>Days Remaining </p>
+                    </div>
+                    <div class ='col-md-6'>
+                        <p class = 'font-weight-bold'>{{ mem.remaining }} Days</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class = "row justify-content-center">
+            <div class ="col-md-10 card mt-5 mr-2 px-6 py-3 justify-content-center bg-gradient-default">
+                <h2 class = "text-center mb-5 text-white">Borrowed Books</h2>
+                <div class = "row justify-content-center">
+                    <div class = "col justify-content-center">
+                        <h4 class ='mb-4 ml-5 text-white' id="act">Active Books</h4>
+                        <ul id = "ActiveList" style = 'list-style-type: none;'>
+
+                        </ul>
+                        <h4 class ='mb-4 ml-5 text-white' id ='exp'>Expired Books</h4>
+                        <ul id = "ExpList" style = 'list-style-type: none;'>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scriptblock %}
+    <script>
+        let email = "{{ user.email|safe }}";
+        let url1 = location.origin + "/getBorrowList/" + email + "/";
+        let act = document.getElementById("act");
+        act.style.visibility = 'hidden';
+        let exp = document.getElementById('exp');
+        exp.style.visibility = 'hidden';
+        let memtype = "{{ mem.type|safe }}";
+        if(memtype === "Gold"){
+            let elem = document.getElementById("cert");
+            elem.style.color = 'yellow';
+        }
+
+        fetch(url1)
+        .then(function(response){
+            return response.json();
+        })
+        .then(function(data){
+            let actl = data['active']
+            let expl = data['expired']
+            if(actl.length > 0){
+                act.style.visibility = "visible";
+            }
+            if(expl.length > 0){
+                exp.style.visibility = "visible";
+            }
+            updateActive(actl, 'ActiveList', 'info');
+            updateActive(expl, 'ExpList', 'red');
+        })
+
+        let updateActive = function(dataArray , listname, color){
+            for(let i=0; i<dataArray.length; i++) {
+                let liitem = document.createElement('li');
+                let cardiv = document.createElement('div');
+                cardiv.classList.add("card");
+                cardiv.style.marginBottom = "15px";
+                let div1 = document.createElement('div');
+                div1.classList.add("row", "p-4");
+                let divcol1 = document.createElement('div');
+                divcol1.classList.add("col-md-2");
+                let img = document.createElement('img');
+                img.src = dataArray[i]['imglink'];
+                img.classList.add("img-fluid", "rounded", "shadow");
+                img.style.height = "100px";
+                divcol1.appendChild(img);
+                let divcol2 = document.createElement('div');
+                divcol2.classList.add("col");
+                divcol2.innerHTML = "<h2>" + dataArray[i]["title"] + "</h2><p>"+dataArray[i]['date'] +"</p>";
+                divcol2.appendChild(get_progressbar(dataArray[i], color));
+                div1.appendChild(divcol1);
+                div1.appendChild(divcol2);
+                cardiv.appendChild(div1)
+                liitem.appendChild(cardiv);
+                liitem.onclick = function () {
+                    redirectToBook(dataArray[i]["bookid"])
+                }
+                let ul = document.getElementById(listname);
+                ul.appendChild(liitem);
+            }
+        }
+
+        let get_progressbar = function(bookobj, color) {
+            let bgcolor = "bg-gradient-info";
+            console.log(color);
+            if(color === "red")
+                bgcolor = "bg-gradient-danger";
+            let divwr = document.createElement('div');
+            divwr.classList.add("progress-wrapper", "mt--5");
+            let divpi = document.createElement('div');
+            divpi.classList.add("progress-info");
+            let divpp = document.createElement('div');
+            divpp.classList.add("progress-percentage");
+            divpp.innerHTML = "<span class = \"mb-1\">"+bookobj['days']+" days remaining</span>";
+            divpi.appendChild(divpp);
+            let percen = ((7-bookobj['days']) / 7)*100;
+            let divp = document.createElement('div');
+            divp.classList.add("progress");
+            divp.innerHTML = "<div class= \"progress-bar "+ bgcolor +"\" style=\"width: " + percen+"%\"></div>";
+            divwr.appendChild(divpi);
+            divwr.appendChild(divp);
+            return divwr;
+        }
+
+        let redirectToBook = function(id){
+            let url1 = location.origin + "/getbook/" + id + "/{{ user.email|safe }}";
+            window.location = url1;
+        }
+
+
+
+    </script>
+{% endblock %}

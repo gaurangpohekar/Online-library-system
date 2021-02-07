@@ -1,0 +1,396 @@
+{% extends 'mainTemplate.html' %}
+{% load static %}
+
+{% block mainblock %}
+    <div class="section">
+        <div class="testimonials-3">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-lg-3 col-md-8 col-10 positioned">
+              <h3 class="display-3">Your List</h3>
+              <p class="lead">
+                Add books to your list for easy access. Browse books in catalogue and save them to your list. You can edit the list any time you want.
+              </p>
+            </div>
+            <div class="col-md-12 col-md-6">
+              <div class="testimonial-glide glide--ltr glide--carousel glide--swipeable" id = "thisglide">
+                <div class="glide__track" data-glide-el="track">
+                  <ul class="glide__slides" id = "mylist" style="transition: transform 400ms cubic-bezier(0.165, 0.84, 0.44, 1) 0s; width: 4661.25px; transform: translate3d(-1553.75px, 0px, 0px);">
+
+                  </ul>
+                </div>
+                <div class="glide__arrows" data-glide-el="controls">
+                  <button class="glide__arrow glide__arrow--left text-default" data-glide-dir="<"><i class="ni ni-bold-left"></i></button>
+                  <button class="glide__arrow glide__arrow--right text-default" data-glide-dir=">"><i class="ni ni-bold-right"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class = "section">
+        <div class="text-center mb-4 " id = "catext">
+            <h1>Catalogue</h1>
+        </div>
+        <div class="row justify-content-center">
+            <div class = "col-md-4 mr--4 mb-3">
+                <input class = "form-control" type = 'text' placeholder = "Search" id = "search">
+            </div>
+            <div class = "col-md-1">
+                <div class = "btn btn-gradient-primary" onclick = search()><i class ='fa fa-search' id="srchbtn"></i></div>
+            </div>
+        </div>
+        <div class = "justify-content-center">
+            <div class = "row justify-content-center">
+                <div class = "col-md-8">
+                    <ul id = "cataloguelist" style = "list-style-type: none">
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class = 'row justify-content-center'>
+            <div class="btn-wrapper">
+                <div class = "btn btn-gradient-white text-dark" onclick = nextButton(-1)>Prev</div>
+                <div class = "btn btn-gradient-white text-dark" onclick = nextButton(1)>Next</div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Get Gold Membership</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            <div class="modal-body">
+                <div class ='form-group'>
+                    <div class="custom-control custom-radio mb-3">
+                        <input name="custom-radio-1" class="custom-control-input" id="customRadio1" type="radio">
+                        <label class="custom-control-label" for="customRadio1">3 Months</label>
+                    </div>
+                    <div class="custom-control custom-radio mb-3">
+                        <input name="custom-radio-1" class="custom-control-input" id="customRadio2" checked="" type="radio">
+                        <label class="custom-control-label" for="customRadio2">6 Months</label>
+                    </div>
+                    <div class="custom-control custom-radio mb-3">
+                        <input name="custom-radio-1" class="custom-control-input" id="customRadio3" checked="" type="radio">
+                        <label class="custom-control-label" for="customRadio2">12 Months</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="membershipAdd()">Apply</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scriptblock %}
+    <script>
+    let objid = "{{ id|safe }}";
+    let url = location.origin + "/getlist/"+ objid;
+    let url2 = location.origin + "/getCatalogue/";
+    let data;
+    let dataArr;
+    let glider;
+    let memtype = "{{ mem.type|safe }}";
+    if(memtype === "Free"){
+        let elem = document.getElementById("membership");
+        elem.setAttribute("data-toggle", "modal");
+        elem.setAttribute("data-target", "#exampleModal");
+    }
+    else{
+        let elem = document.getElementById("cert");
+        elem.style.color = 'yellow';
+    }
+    fetch(url)
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(myJson) {
+        data = myJson;
+        loadList2();
+        if(data.length > 0) {
+            glider = new Glide('#thisglide', {
+                type: 'carousel',
+                startAt: 0,
+                focusAt: 2,
+                perTouch: 1,
+                perView: 4,
+            }).mount();
+        }
+    });
+
+    let updateList = function(){
+        let objid = "{{ id|safe }}";
+        let url = location.origin + "/getlist/"+ objid;
+        fetch(url)
+    .   then(function(response) {
+            return response.json();
+        })
+        .then(function(myJson) {
+            data = myJson;
+            glider.destroy();
+            let elem = document.getElementById('mylist');
+            removeChild(elem);
+            loadList2();
+            if(data.length > 0) {
+                glider = new Glide('#thisglide', {
+                    type: 'carousel',
+                    startAt: 0,
+                    focusAt: 2,
+                    perTouch: 1,
+                    perView: 4,
+                }).mount();
+            }
+        });
+    }
+
+
+    let loadList2 = function(){
+        for(let i=0; i<data.length; i++) {
+            {#li #}
+            let liitem = document.createElement('li');
+            liitem.classList.add("glide__slide");
+            liitem.style.width = "350.75px";
+            liitem.style.marginLeft = "5px";
+            liitem.style.marginRight = "5px";
+            {#card div#}
+            let carddiv = document.createElement('div');
+            carddiv.classList.add("card", "px-3", "py-2", "pb-3")
+            {# div row #}
+            let divr1 = document.createElement('div')
+            divr1.classList.add('row', "mt--4")
+            {# col-md-6#}
+            let col1 = document.createElement('div')
+            col1.classList.add('col-md-4')
+            {#img#}
+            let im = document.createElement('img');
+            im.src = data[i]['cover']['medium'];
+            im.classList.add("img-fluid", "rounded", "shadow")
+
+            col1.appendChild(im);
+            divr1.appendChild(col1);
+
+            {#col-md-6#}
+            let col2 = document.createElement('div')
+            col2.classList.add('col-md-8', 'pt-5', 'text-center')
+            {#title#}
+            let sp = document.createElement('span')
+            sp.classList.add("h3", "text-wrap");
+            sp.style.display = 'block';
+            let sptxt = document.createTextNode(data[i]['title']);
+            sp.appendChild(sptxt);
+            col2.appendChild(sp);
+            divr1.appendChild(col2);
+            {#div row#}
+            let divr2 = document.createElement('div')
+            divr2.classList.add('mt--3')
+            let inp = document.createElement("p");
+            inp.style.height = "300px";
+            inp.style.overflow ="hidden";
+            inp.style.textOverflow = "ellipsis";
+            let text = document.createTextNode(data[i]['description'])
+            inp.appendChild(text);
+            divr2.appendChild(inp);
+
+            {#btn-wrapper#}
+            let divbtn = document.createElement('div');
+            divbtn.classList.add('btn-wrapper', 'mt--2');
+            divbtn.setAttribute('bookid', data[i]['_id']);
+            let pr = document.createElement('div');
+            pr.classList.add("btn", "bg-gradient-danger", "text-white", "mr-5");
+            let prtext = document.createTextNode("Remove");
+            let pr2 = document.createElement('div');
+            pr2.classList.add("btn", "bg-gradient-info", "text-white");
+            let prtext2 = document.createTextNode("View");
+            pr2.appendChild(prtext2);
+            pr.appendChild(prtext);
+            pr2.style.width = "102px";
+            pr.onclick = function(){removeBook(data[i]["_id"])};
+            pr2.onclick = function(){viewButton(data[i]["_id"])};
+            divbtn.appendChild(pr);
+            divbtn.appendChild(pr2);
+
+            carddiv.appendChild(divr1);
+            carddiv.appendChild(divr2);
+            carddiv.appendChild(divbtn);
+            liitem.appendChild(carddiv);
+            let ul = document.getElementById("mylist");
+            ul.appendChild(liitem);
+        }
+    }
+
+    let viewButton = function(id){
+        let url = location.origin + "/getbook/" + id + "/{{ email|safe }}";
+        window.location = url;
+    }
+
+    let removeBook = function(id) {
+        let url = location.origin + "/removebook/" + id + "/{{ email|safe }}";
+        fetch(url)
+        .then(function(response){
+            return response.json();
+        })
+        .then(function(data){
+            console.log(data);
+            updateList();
+        })
+    }
+
+    let removeChild = function(elem){
+        while(elem.firstChild){
+            elem.removeChild(elem.firstChild);
+        }
+    }
+
+    let pageind = 1;
+    let loadCatalogue = function(dataArray, pageind, no){
+        let startind;
+        let endind;
+        if(dataArray.length < no){
+            startind = 0;
+            endind = dataArray.length - 1;
+        }
+        else{
+                startind = (pageind-1)*no;
+                endind = (pageind*no)-1;
+        }
+        console.log(startind, endind);
+        for(let i=startind; i<=endind; i++){
+            let liitem = document.createElement('li');
+            let cardiv = document.createElement('div');
+            cardiv.classList.add("card");
+            cardiv.style.marginBottom = "15px";
+            {#cardiv.style.height = "250px";#}
+            let div1 = document.createElement('div');
+            div1.classList.add("row", "p-4");
+            let divcol1 = document.createElement('div');
+            divcol1.classList.add("col-md-2");
+            let img = document.createElement('img');
+            img.src = dataArray[i]['cover']['medium'];
+            img.classList.add("img-fluid", "rounded" ,"shadow");
+            img.style.height = "100px";
+            divcol1.appendChild(img);
+            let divcol2 = document.createElement('div');
+            divcol2.classList.add("col");
+            let authText = "Authors: "
+            for(let m of dataArray[i]['authors']){
+                let aurl = location.origin + "/getAuthorName/" + m;
+                fetch(aurl)
+                .then(function(response){
+                    return response.json();
+                })
+                .then(function(data){
+                    authText += data["name"] + " ";
+                    divcol2.innerHTML = "<h2>" + dataArray[i]["title"] + "</h2><h5>" + authText + "</h5>";
+                })
+            }
+            div1.appendChild(divcol1);
+            div1.appendChild(divcol2);
+            cardiv.appendChild(div1)
+            liitem.appendChild(cardiv);
+            liitem.onclick = function(){redirectToBook(dataArray[i]["_id"])}
+            let ul = document.getElementById("cataloguelist");
+            ul.appendChild(liitem);
+        }
+    }
+    fetch(url2)
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data){
+            dataArr = data;
+            loadCatalogue(dataArr, 1, 10);
+        })
+
+    let updateCatalog = function(pageindex){
+        let ul = document.getElementById('cataloguelist');
+        removeChild(ul);
+        loadCatalogue(dataArr, pageindex, 10);
+    }
+
+    let nextButton = function(elem){
+        pageind += elem;
+        if(pageind < 1)
+            pageind = 1;
+        updateCatalog(pageind);
+        let ul = document.getElementById('catext');
+        ul.scrollIntoView();
+    }
+    let redirectToBook = function(id){
+        let url1 = location.origin + "/getbook/" + id + "/{{ email|safe }}";
+        window.location = url1;
+    }
+    let scrollto = function(){
+        let elem = document.getElementById('catext');
+        elem.scrollIntoView();
+    }
+
+    let search = function(){
+        let srt = document.getElementById('search')
+        if(srt.value === ""){
+            fetch(url2)
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data){
+                dataArr = data;
+                loadCatalogue(dataArr, 1, 10);
+                updateCatalog(1);
+            })
+        }
+        else{
+            let st = srt.value;
+            let srchurl = location.origin + "/search/" + st + "/";
+            fetch(srchurl)
+            .then(function(response){
+                return response.json();
+            })
+            .then(function(data){
+                let ul = document.getElementById('cataloguelist');
+                removeChild(ul);
+                dataArr = data;
+                loadCatalogue(data, 1, 10);
+            })
+        }
+     }
+    let redirectToProfile = function(){
+        let url = location.origin + "/userprofile/"+ objid;
+        window.location = url;
+    }
+    let btn = document.getElementById("profilebtn");
+        btn.onclick = function(){redirectToProfile();}
+
+    let membershipAdd = function(){
+        let butArr = ["customRadio1", 'customRadio2', 'customRadio3'];
+        let sel;
+        let i;
+        let count = 1;
+        for (i=0; i<butArr.length; i++){
+            if(document.getElementById(butArr[i]).checked) {
+                sel = count;
+                break;
+            }
+            count ++;
+        }
+        let time = 3;
+        if(sel > 1) {
+            time = (sel - 1) * 6;
+        }
+        let url1 = location.origin + "/addMembership/{{ email|safe }}/Gold/" + time;
+        fetch(url1)
+        .then(function (response){
+            return response.json();
+        })
+        .then(function (data){
+            alert(data['status'])
+        })
+    }
+    </script>
+{% endblock %}

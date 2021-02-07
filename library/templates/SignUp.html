@@ -1,0 +1,78 @@
+{% extends 'LoginTemplate.html' %}
+{% load static %}
+
+{% block main %}
+<div class="col-lg-7">
+          <div class="card bg-secondary shadow border-0" style="background-image: url({% static 'img/Wave-10s-1280px.svg' %}); background-repeat: no-repeat; background-size: auto 280px; background-position: top; ">
+              <div class ="card-body px-lg-6 py-lg-5">
+                  <div class="text-center h1" style = 'margin-bottom: 40px'>
+                      Sign Up
+                  </div>
+              <form role="form" method="post">
+                    {% csrf_token %}
+                    <div class="row pb-lg-3">
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group mb-3">
+                                <div class="input-group input-group-alternative">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="ni ni-single-02"></i></span>
+                                    </div>
+                                    <input class="form-control" {% if form.Firstname.value %}value="{{ form.Firstname.value|stringformat:'s' }}"{% endif %} placeholder="First name" type="text" name = 'fname' required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group mb-3">
+                                <div class="input-group input-group-alternative">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="ni ni-single-02"></i></span>
+                                    </div>
+                                    <input class="form-control" {% if form.Lastname.value %}value="{{ form.Lastname.value|stringformat:'s' }}"{% endif %} placeholder="Last name" type="text" name = 'lname' required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3 pb-lg-3">
+                        <div class="input-group input-group-alternative">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="ni ni-email-83"></i></span>
+                            </div>
+                            <input class="form-control" {% if form.email.value %}value="{{ form.email|stringformat:'s' }}"{% endif %} placeholder="Email" type="email" name = 'email' required>
+                        </div>
+                    </div>
+                    <div class="form-group focused pb-lg-3">
+                        <div class="input-group input-group-alternative">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
+                            </div>
+                            <input class="form-control" {% if form.password.value %}value="{{ form.password.value|stringformat:'s' }}"{% endif %} placeholder="Password" type="password" name = 'password' required>
+                        </div>
+                    </div>
+                    <div class="form-group focused">
+                        <div class="input-group input-group-alternative">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="ni ni-building"></i></span>
+                            </div>
+                            <textarea class="form-control" {% if form.address.value %}value="{{ form.address.value|stringformat:'s' }}"{% endif %} rows="3" placeholder="Address" type="text" name = 'address' ></textarea>
+                        </div>
+                    </div>
+                <div class="text-center">
+                  <button type="submit" class="btn btn-primary bg-gradient-blue my-4">Sign Up</button>
+                </div>
+              </form>
+              </div>
+          </div>
+</div>
+<script>
+        let messagep ;
+        {% if popup %}
+            messagep = true;
+        {% else %}
+            messagep = false;
+        {% endif %}
+        console.log(messagep);
+        if(messagep) {
+            alert("{{ message|safe }}");
+        }
+</script>
+{% endblock %}
